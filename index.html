@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #0B0E14;
-            color: #E0E6ED;
+            background-color: #0A0E17;
+            color: #E2E8F0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             display: flex;
@@ -16,86 +16,103 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
         #game-area, #landing-form, #dashboard {
-            background: #1A1F29;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+            background: #1F2739;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             padding: 30px;
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 1100px;
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
         }
         #game-area:hover, #landing-form:hover, #dashboard:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
         }
         .button {
-            background: linear-gradient(to right, #4C51BF, #3B82F6);
-            color: #E0E6ED;
-            padding: 12px 25px;
-            border-radius: 8px;
+            background: linear-gradient(to right, #6A5ACD, #4682B4);
+            color: #E2E8F0;
+            padding: 10px 20px;
+            border-radius: 10px;
             font-weight: bold;
             transition: background 0.3s ease, transform 0.2s;
-            margin-top: 15px;
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
         }
         .button:hover {
-            background: linear-gradient(to right, #3C409E, #2563EB);
+            background: linear-gradient(to right, #483D8B, #5F9EA0);
             transform: scale(1.05);
         }
         input[type="text"] {
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #2D3748;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #3A3F58;
             outline: none;
-            width: 90%;
+            width: 80%;
             margin-bottom: 20px;
-            background-color: #1A1F29;
-            color: #E0E6ED;
+            background-color: #2B3249;
+            color: #E2E8F0;
             transition: border-color 0.3s;
         }
         input[type="text"]:focus {
-            border-color: #4C51BF;
+            border-color: #6A5ACD;
         }
         .card {
             display: inline-block;
-            background: #2D3748;
-            color: #E0E6ED;
-            padding: 20px;
+            background: #3A3F58;
+            color: #E2E8F0;
+            padding: 15px;
             margin: 5px;
-            border-radius: 10px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             font-weight: bold;
-            font-size: 1.5rem;
-            width: 60px;
-            height: 100px;
+            font-size: 1.2rem;
+            width: 50px;
+            height: 80px;
             text-align: center;
             position: relative;
             transition: transform 0.3s, box-shadow 0.3s;
         }
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
         }
         .card .suit {
-            font-size: 1.3rem;
+            font-size: 1rem;
             position: absolute;
             top: 5px;
             right: 5px;
         }
+        .table-section {
+            background-color: #1C2230;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+        #player-hand, #dealer-hand, #virtual-players-hands {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
         #timer {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #F56565;
+            color: #FF6F61;
             margin-top: 15px;
         }
         .highlight {
-            color: #48BB78;
+            color: #32CD32;
         }
         footer {
             margin-top: 40px;
-            color: #718096;
+            color: #A0AEC0;
             font-size: 0.9rem;
         }
         footer a {
@@ -125,12 +142,20 @@
             <button class="button" onclick="allIn()">All In</button>
         </div>
         <div id="game-status" class="mb-4 text-lg"></div>
-        <div class="mb-6">
-            <div>Player's Hand:</div>
-            <div id="player-hand" class="mb-4"></div>
-            <div>Dealer's Hand:</div>
-            <div id="dealer-hand" class="mb-4"></div>
+
+        <div class="table-section">
+            <h2 class="text-2xl mb-2">Player's Hand</h2>
+            <div id="player-hand"></div>
         </div>
+        <div class="table-section">
+            <h2 class="text-2xl mb-2">Dealer's Hand</h2>
+            <div id="dealer-hand"></div>
+        </div>
+        <div class="table-section">
+            <h2 class="text-2xl mb-2">Virtual Players' Hands</h2>
+            <div id="virtual-players-hands"></div>
+        </div>
+
         <button id="hit-button" class="button" onclick="hit()">Hit</button>
         <button id="stand-button" class="button" onclick="stand()">Stand</button>
         <div id="timer">Time Left: <span id="time-left">30</span> seconds</div>
@@ -147,15 +172,49 @@
     </footer>
 
     <script>
+        const suits = ["♠", "♥", "♦", "♣"];
+        const cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+        let deck = [];
         let wealth = 100000;
         let currentBet = 5000;
         let playerName = "";
         let playerHand = [];
         let dealerHand = [];
+        let virtualPlayers = Array(5).fill(null).map(() => []);
         let gameEnded = false;
         let timeLeft = 30;
         let timerInterval;
         let roundCounter = 0;
+
+        function generateDeck() {
+            deck = [];
+            for (let i = 0; i < 3; i++) { // 3 decks combined
+                for (let suit of suits) {
+                    for (let card of cards) {
+                        deck.push({ value: getCardValue(card), display: card, suit: suit });
+                    }
+                }
+            }
+            shuffleDeck();
+        }
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function drawCard() {
+            if (deck.length === 0) generateDeck();
+            return deck.pop();
+        }
+
+        function getCardValue(card) {
+            if (card === "A") return 11;
+            if (card === "J" || card === "Q" || card === "K") return 10;
+            return parseInt(card);
+        }
 
         function startGame() {
             playerName = document.getElementById('player-name').value.trim();
@@ -166,6 +225,7 @@
             document.getElementById('landing-form').classList.add('hidden');
             document.getElementById('game-area').classList.remove('hidden');
             document.getElementById('player').textContent = playerName;
+            generateDeck();
             startNewRound();
             startTimer();
         }
@@ -178,55 +238,11 @@
             roundCounter++;
             playerHand = [drawCard(), drawCard()];
             dealerHand = [drawCard(), drawCard()];
+            virtualPlayers = virtualPlayers.map(() => [drawCard(), drawCard()]);
             gameEnded = false;
             resetTimer();
             updateUI();
-        }
-
-        function drawCard() {
-            const suits = ["♠", "♥", "♦", "♣"];
-            const cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-            const suit = suits[Math.floor(Math.random() * suits.length)];
-            const card = cards[Math.floor(Math.random() * cards.length)];
-            return { value: getCardValue(card), display: card, suit: suit };
-        }
-
-        function getCardValue(card) {
-            if (card === "A") return 11;
-            if (card === "J" || card === "Q" || card === "K") return 10;
-            return parseInt(card);
-        }
-
-        function updateUI() {
-            document.getElementById('wealth').textContent = wealth;
-            document.getElementById('bet').textContent = currentBet;
-            document.getElementById('player-hand').innerHTML = playerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
-            document.getElementById('dealer-hand').innerHTML = gameEnded ? dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('') : `<span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> <span class="card">?</span>`;
-            document.getElementById('hit-button').disabled = gameEnded;
-            document.getElementById('stand-button').disabled = gameEnded;
-        }
-
-        function raiseBet() {
-            if (currentBet + 5000 <= wealth) {
-                currentBet += 5000;
-                updateUI();
-            } else {
-                alert("You don't have enough wealth to raise the bet.");
-            }
-        }
-
-        function lowerBet() {
-            if (currentBet - 3000 >= 1000) {
-                currentBet -= 3000;
-                updateUI();
-            } else {
-                alert("The minimum bet is $1,000.");
-            }
-        }
-
-        function allIn() {
-            currentBet = wealth;
-            updateUI();
+            virtualPlayersTurn();
         }
 
         function calculateHandValue(hand) {
@@ -237,6 +253,18 @@
                 aceCount--;
             }
             return value;
+        }
+
+        function updateUI() {
+            document.getElementById('wealth').textContent = wealth;
+            document.getElementById('bet').textContent = currentBet;
+            document.getElementById('player-hand').innerHTML = playerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
+            document.getElementById('dealer-hand').innerHTML = gameEnded ? dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('') : `<span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> <span class="card">?</span>`;
+            document.getElementById('virtual-players-hands').innerHTML = virtualPlayers.map((hand, index) => `
+                <div>Player ${index + 1}: ${hand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('')}</div>
+            `).join('');
+            document.getElementById('hit-button').disabled = gameEnded;
+            document.getElementById('stand-button').disabled = gameEnded;
         }
 
         function hit() {
@@ -252,14 +280,31 @@
 
         function stand() {
             if (gameEnded || timeLeft <= 0) return;
-            while (calculateHandValue(dealerHand) < 17 || (calculateHandValue(dealerHand) <= calculateHandValue(playerHand) && calculateHandValue(dealerHand) < 21)) {
+            dealerTurn();
+        }
+
+        function virtualPlayersTurn() {
+            virtualPlayers.forEach((hand, index) => {
+                while (calculateHandValue(hand) < 16) {
+                    hand.push(drawCard());
+                }
+            });
+            updateUI();
+        }
+
+        function dealerTurn() {
+            while (calculateHandValue(dealerHand) < 17) {
                 dealerHand.push(drawCard());
             }
+            evaluateGame();
+        }
+
+        function evaluateGame() {
             const playerValue = calculateHandValue(playerHand);
             const dealerValue = calculateHandValue(dealerHand);
-            resetTimer();
+            const virtualWinners = virtualPlayers.filter(hand => calculateHandValue(hand) <= 21 && calculateHandValue(hand) > dealerValue);
 
-            if (dealerValue > 21 || playerValue > dealerValue) {
+            if (dealerValue > 21 || playerValue > dealerValue || virtualWinners.length === 0) {
                 endGame(true);
             } else {
                 endGame(false);
@@ -303,6 +348,29 @@
             roundCounter = 0;
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('landing-form').classList.remove('hidden');
+        }
+
+        function raiseBet() {
+            if (currentBet + 5000 <= wealth) {
+                currentBet += 5000;
+                updateUI();
+            } else {
+                alert("You don't have enough wealth to raise the bet.");
+            }
+        }
+
+        function lowerBet() {
+            if (currentBet - 3000 >= 1000) {
+                currentBet -= 3000;
+                updateUI();
+            } else {
+                alert("The minimum bet is $1,000.");
+            }
+        }
+
+        function allIn() {
+            currentBet = wealth;
+            updateUI();
         }
 
         function startTimer() {
