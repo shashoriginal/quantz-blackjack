@@ -6,6 +6,7 @@
     <title>Monte Carlo Blackjack Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Dark Theme Enhancements */
         body {
             background-color: #0A0E17;
             color: #E2E8F0;
@@ -14,22 +15,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
         }
-        #game-area, #landing-form, #dashboard {
+        #landing-form, #betting-phase, #game-area, #dashboard {
             background: #1F2739;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             padding: 30px;
             width: 95%;
-            max-width: 1100px;
+            max-width: 1200px;
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
         }
-        #game-area:hover, #landing-form:hover, #dashboard:hover {
+        #landing-form:hover, #betting-phase:hover, #game-area:hover, #dashboard:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
         }
@@ -40,7 +42,7 @@
             border-radius: 10px;
             font-weight: bold;
             transition: background 0.3s ease, transform 0.2s;
-            margin-top: 10px;
+            margin: 10px 5px;
             display: inline-block;
             cursor: pointer;
         }
@@ -72,8 +74,8 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             font-weight: bold;
             font-size: 1.2rem;
-            width: 50px;
-            height: 80px;
+            width: 60px;
+            height: 90px;
             text-align: center;
             position: relative;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -110,6 +112,26 @@
         .highlight {
             color: #32CD32;
         }
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .dashboard-section {
+            background-color: #2A2F3A;
+            border-radius: 15px;
+            padding: 15px;
+            width: 48%;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+            margin-bottom: 10px;
+        }
+        .pool {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 15px 0;
+        }
         footer {
             margin-top: 40px;
             color: #A0AEC0;
@@ -123,26 +145,97 @@
         footer a:hover {
             color: #3182CE;
         }
+        /* Additional Styles for Wallet Display */
+        .wallet {
+            background-color: #2A2F3A;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .wallet-name {
+            font-weight: bold;
+        }
+        .wallet-amount {
+            color: #FFD700;
+        }
+        /* Improved UI Elements */
+        .hidden {
+            display: none;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
+    <!-- Landing Form -->
     <div id="landing-form" class="p-8">
         <h1 class="text-5xl font-bold mb-6">Monte Carlo Blackjack</h1>
         <input type="text" id="player-name" placeholder="Enter your name" class="px-4 py-2 rounded-md mb-4">
-        <button class="button" onclick="startGame()">Start Game</button>
+        <button class="button" onclick="startBettingPhase()">Start Game</button>
     </div>
+
+    <!-- Betting Phase -->
+    <div id="betting-phase" class="hidden p-8">
+        <h1 class="text-4xl font-bold mb-6">Place Your Bets</h1>
+        <div class="dashboard">
+            <!-- Player Wallets -->
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Player Wallets</h3>
+                <div id="player-wallets">
+                    <!-- Human Player Wallet -->
+                    <div class="wallet">
+                        <span class="wallet-name" id="player-wallet-name"></span>
+                        <span class="wallet-amount">$<span id="player-wallet"></span></span>
+                    </div>
+                    <!-- Virtual Players Wallets -->
+                    <div id="virtual-wallets">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+            <!-- Betting Controls -->
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Your Bet</h3>
+                <p class="text-lg mb-4">Current Bet: $<span id="current-bet">5000</span></p>
+                <div>
+                    <button class="button" onclick="raiseBet()">Raise Bet by $5,000</button>
+                    <button class="button" onclick="lowerBet()">Lower Bet by $3,000</button>
+                    <button class="button" onclick="allIn()">All In</button>
+                </div>
+                <button class="button mt-4" onclick="confirmBets()">Confirm Bets and Start Round</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Area -->
     <div id="game-area" class="hidden p-8">
         <h1 class="text-4xl font-bold mb-4">Monte Carlo Blackjack Game</h1>
-        <p class="text-lg mb-2">Player: <span id="player" class="font-semibold"></span></p>
-        <p class="text-lg mb-2">Current Wealth: $<span id="wealth" class="font-bold highlight">100000</span></p>
-        <p class="text-lg mb-6">Current Bet: $<span id="bet" class="font-bold">5000</span></p>
+        <div class="dashboard">
+            <!-- Player Turn and Financial Stats -->
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Player Turn</h3>
+                <p id="current-turn">Waiting...</p>
+            </div>
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Financial Stats</h3>
+                <ul id="financial-stats" class="list-none">
+                    <!-- Dynamically populated -->
+                </ul>
+            </div>
+        </div>
+        <div class="pool">Betting Pool: $<span id="betting-pool">0</span></div>
         <div>
-            <button class="button" onclick="raiseBet()">Raise Bet by $5,000</button>
-            <button class="button" onclick="lowerBet()">Lower Bet by $3,000</button>
-            <button class="button" onclick="allIn()">All In</button>
+            <button id="hit-button" class="button" onclick="hit()">Hit</button>
+            <button id="stand-button" class="button" onclick="stand()">Stand</button>
+            <button id="fold-button" class="button" onclick="fold()">Fold</button>
         </div>
         <div id="game-status" class="mb-4 text-lg"></div>
 
+        <!-- Table Sections -->
         <div class="table-section">
             <h2 class="text-2xl mb-2">Player's Hand</h2>
             <div id="player-hand"></div>
@@ -156,10 +249,10 @@
             <div id="virtual-players-hands"></div>
         </div>
 
-        <button id="hit-button" class="button" onclick="hit()">Hit</button>
-        <button id="stand-button" class="button" onclick="stand()">Stand</button>
-        <div id="timer">Time Left: <span id="time-left">30</span> seconds</div>
+        <div id="timer">Time Left: <span id="time-left">45</span> seconds</div>
     </div>
+
+    <!-- Dashboard -->
     <div id="dashboard" class="hidden p-8">
         <h1 class="text-4xl font-bold mb-4">Game Over</h1>
         <p class="text-lg mb-6">Thank you for playing, <span id="player-name-dashboard" class="font-semibold"></span>!</p>
@@ -167,11 +260,13 @@
         <p class="text-lg mb-6">We hope you enjoyed the game!</p>
         <button class="button" onclick="restartGame()">Play Again</button>
     </div>
+
     <footer>
         Made with ❤️ by <a href="https://github.com/shashoriginal">Shashank</a>
     </footer>
 
     <script>
+        // Game Constants and Variables
         const suits = ["♠", "♥", "♦", "♣"];
         const cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
         let deck = [];
@@ -180,15 +275,25 @@
         let playerName = "";
         let playerHand = [];
         let dealerHand = [];
-        let virtualPlayers = Array(5).fill(null).map(() => []);
+        let virtualPlayers = [
+            { name: "AI Player 1", wealth: 100000, hand: [], status: "In", bet: 0 },
+            { name: "AI Player 2", wealth: 100000, hand: [], status: "In", bet: 0 },
+            { name: "AI Player 3", wealth: 100000, hand: [], status: "In", bet: 0 },
+            { name: "AI Player 4", wealth: 100000, hand: [], status: "In", bet: 0 },
+            { name: "AI Player 5", wealth: 100000, hand: [], status: "In", bet: 0 }
+        ];
         let gameEnded = false;
-        let timeLeft = 30;
+        let timeLeft = 45;
         let timerInterval;
         let roundCounter = 0;
+        let currentTurn = 0; // 0: Player, 1-5: Virtual Players, 6: Dealer
+        let bettingPool = 0;
+        let folded = false;
 
+        // Generate and Shuffle Deck
         function generateDeck() {
             deck = [];
-            for (let i = 0; i < 3; i++) { // 3 decks combined
+            for (let i = 0; i < 6; i++) { // 6 decks for better randomness
                 for (let suit of suits) {
                     for (let card of cards) {
                         deck.push({ value: getCardValue(card), display: card, suit: suit });
@@ -206,45 +311,249 @@
         }
 
         function drawCard() {
-            if (deck.length === 0) generateDeck();
+            if (deck.length === 0) {
+                generateDeck();
+            }
             return deck.pop();
         }
 
         function getCardValue(card) {
             if (card === "A") return 11;
-            if (card === "J" || card === "Q" || card === "K") return 10;
+            if (["J", "Q", "K"].includes(card)) return 10;
             return parseInt(card);
         }
 
-        function startGame() {
+        // Start Betting Phase
+        function startBettingPhase() {
             playerName = document.getElementById('player-name').value.trim();
             if (!playerName) {
                 alert('Please enter your name to start the game.');
                 return;
             }
             document.getElementById('landing-form').classList.add('hidden');
-            document.getElementById('game-area').classList.remove('hidden');
-            document.getElementById('player').textContent = playerName;
-            generateDeck();
-            startNewRound();
-            startTimer();
+            document.getElementById('betting-phase').classList.remove('hidden');
+            document.getElementById('player-wallet-name').textContent = playerName;
+            document.getElementById('player-wallet').textContent = wealth;
+            populateVirtualWallets();
+            updateFinancialStats();
         }
 
+        // Populate Virtual Players' Wallets
+        function populateVirtualWallets() {
+            const virtualWalletsDiv = document.getElementById('virtual-wallets');
+            virtualWalletsDiv.innerHTML = '';
+            virtualPlayers.forEach((vp, index) => {
+                const walletDiv = document.createElement('div');
+                walletDiv.classList.add('wallet');
+                walletDiv.innerHTML = `
+                    <span class="wallet-name">${vp.name}</span>
+                    <span class="wallet-amount">$<span id="vp-wallet-${index}">${vp.wealth}</span></span>
+                `;
+                virtualWalletsDiv.appendChild(walletDiv);
+            });
+        }
+
+        // Update All Wallet Displays
+        function updateWalletDisplays() {
+            document.getElementById('player-wallet').textContent = wealth;
+            virtualPlayers.forEach((vp, index) => {
+                document.getElementById(`vp-wallet-${index}`).textContent = vp.wealth;
+            });
+        }
+
+        // Betting Functions
+        function raiseBet() {
+            if (currentBet + 5000 <= wealth) {
+                currentBet += 5000;
+                updateBetDisplay();
+            } else {
+                alert("You don't have enough wealth to raise the bet.");
+            }
+        }
+
+        function lowerBet() {
+            if (currentBet - 3000 >= 1000) {
+                currentBet -= 3000;
+                updateBetDisplay();
+            } else {
+                alert("The minimum bet is $1,000.");
+            }
+        }
+
+        function allIn() {
+            currentBet = wealth;
+            updateBetDisplay();
+        }
+
+        function updateBetDisplay() {
+            document.getElementById('current-bet').textContent = currentBet;
+        }
+
+        // Confirm Bets and Start Round
+        function confirmBets() {
+            // Check if player has enough wealth
+            if (currentBet > wealth) {
+                alert("You don't have enough wealth to place this bet.");
+                return;
+            }
+
+            // Collect player bet
+            wealth -= currentBet;
+            bettingPool += currentBet;
+
+            // Collect virtual players' bets
+            virtualPlayers.forEach((vp, index) => {
+                if (vp.wealth >= 1000) { // Minimum bet for AI players
+                    const vpBet = determineVirtualBet(vp);
+                    vp.bet = vpBet;
+                    vp.wealth -= vpBet;
+                    bettingPool += vpBet;
+                } else {
+                    vp.bet = 0;
+                    vp.status = "Busted";
+                }
+            });
+
+            updateWalletDisplays();
+            updateFinancialStats();
+
+            // Disable betting buttons
+            disableBettingControls();
+
+            // Proceed to deal cards
+            document.getElementById('betting-phase').classList.add('hidden');
+            document.getElementById('game-area').classList.remove('hidden');
+            generateDeck();
+            startNewRound();
+        }
+
+        // Determine Virtual Player's Bet (Advanced Strategy)
+        function determineVirtualBet(vp) {
+            // Virtual players can only adjust their bets by $5,000, $3,000, or go all-in
+            // Strategy: Bet a multiple of 3,000 or 5,000 based on their wealth and game state
+            const minBet = 1000;
+            let possibleBets = [];
+
+            // Calculate possible increments
+            for (let bet = 3000; bet <= Math.floor(vp.wealth * 0.15); bet += 3000) {
+                if (bet <= vp.wealth) {
+                    possibleBets.push(bet);
+                }
+            }
+            for (let bet = 5000; bet <= Math.floor(vp.wealth * 0.15); bet += 5000) {
+                if (bet <= vp.wealth && !possibleBets.includes(bet)) {
+                    possibleBets.push(bet);
+                }
+            }
+
+            // Add all-in option if wealth is a significant portion
+            if (vp.wealth > 20000) { // Threshold can be adjusted
+                possibleBets.push(vp.wealth);
+            }
+
+            // Filter bets to ensure they are within the allowed increments and do not exceed 15% of wealth
+            possibleBets = possibleBets.filter(bet => bet >= minBet && bet <= Math.floor(vp.wealth * 0.15));
+
+            // Choose a bet based on a simple strategy: more conservative with lower wealth, aggressive with higher wealth
+            let chosenBet = minBet;
+            if (vp.wealth > 50000) {
+                // High wealth: choose higher bets
+                chosenBet = possibleBets[possibleBets.length - 1];
+            } else if (vp.wealth > 30000) {
+                // Medium wealth: choose mid-range bets
+                chosenBet = possibleBets[Math.floor(possibleBets.length / 2)];
+            } else {
+                // Low wealth: choose minimum or go all-in
+                chosenBet = possibleBets[0];
+            }
+
+            // Ensure the bet is within the allowed increments
+            if (possibleBets.includes(vp.wealth)) {
+                // Decide randomly whether to go all-in
+                chosenBet = Math.random() > 0.7 ? vp.wealth : chosenBet;
+            }
+
+            return chosenBet;
+        }
+
+        // Disable Betting Controls After Betting Phase
+        function disableBettingControls() {
+            const buttons = document.querySelectorAll('#betting-phase .button');
+            buttons.forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        // Enable Betting Controls (for Restart)
+        function enableBettingControls() {
+            const buttons = document.querySelectorAll('#betting-phase .button');
+            buttons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        // Start a New Round
         function startNewRound() {
-            if (roundCounter >= 20) {
+            if (roundCounter >= 20 || wealth <= 0 || virtualPlayers.every(vp => vp.wealth < 1000)) {
                 displayDashboard();
                 return;
             }
             roundCounter++;
+            // Reset Hands and Status
             playerHand = [drawCard(), drawCard()];
             dealerHand = [drawCard(), drawCard()];
-            virtualPlayers = virtualPlayers.map(() => [drawCard(), drawCard()]);
+            virtualPlayers.forEach(vp => {
+                if (vp.wealth >= vp.bet && vp.bet > 0) {
+                    vp.hand = [drawCard(), drawCard()];
+                    vp.status = "In";
+                } else {
+                    vp.status = "Busted";
+                }
+            });
+            folded = false;
+            bettingPool = currentBet + virtualPlayers.reduce((sum, vp) => sum + vp.bet, 0);
             gameEnded = false;
+            currentTurn = 0; // Start with human player
             resetTimer();
             updateUI();
-            virtualPlayersTurn();
+            checkInitialBlackjacks();
         }
 
+        // Check for Initial Blackjacks
+        function checkInitialBlackjacks() {
+            const playerValue = calculateHandValue(playerHand);
+            const dealerValue = calculateHandValue(dealerHand);
+
+            let playerBlackjack = playerValue === 21;
+            let dealerBlackjack = dealerValue === 21;
+
+            if (playerBlackjack || dealerBlackjack) {
+                if (playerBlackjack && dealerBlackjack) {
+                    // Push
+                    bettingPool = 0;
+                    gameEnded = true;
+                    document.getElementById('game-status').textContent = `Both you and the dealer have Blackjack! It's a push.`;
+                } else if (playerBlackjack) {
+                    wealth += Math.floor(currentBet * 2.5); // 3:2 payout
+                    bettingPool = 0;
+                    gameEnded = true;
+                    document.getElementById('game-status').textContent = `Blackjack! You win 1.5 times your bet.`;
+                } else {
+                    bettingPool = 0;
+                    gameEnded = true;
+                    document.getElementById('game-status').textContent = `Dealer has Blackjack! You lose your bet.`;
+                }
+                updateUI();
+                setTimeout(endRound, 3000);
+            } else {
+                // Proceed to player actions
+                playTurn();
+            }
+        }
+
+        // Calculate Hand Value
         function calculateHandValue(hand) {
             let value = hand.reduce((acc, card) => acc + card.value, 0);
             let aceCount = hand.filter(card => card.value === 11).length;
@@ -255,141 +564,318 @@
             return value;
         }
 
+        // Update UI Elements
         function updateUI() {
-            document.getElementById('wealth').textContent = wealth;
-            document.getElementById('bet').textContent = currentBet;
+            updateWalletDisplays();
+            updateFinancialStats();
+            document.getElementById('betting-pool').textContent = bettingPool;
+            // Update Hands
             document.getElementById('player-hand').innerHTML = playerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
-            document.getElementById('dealer-hand').innerHTML = gameEnded ? dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('') : `<span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> <span class="card">?</span>`;
-            document.getElementById('virtual-players-hands').innerHTML = virtualPlayers.map((hand, index) => `
-                <div>Player ${index + 1}: ${hand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('')}</div>
+            if (gameEnded) {
+                document.getElementById('dealer-hand').innerHTML = dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
+            } else {
+                document.getElementById('dealer-hand').innerHTML = `<span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> <span class="card">?</span>`;
+            }
+            // Update Virtual Players' Hands
+            document.getElementById('virtual-players-hands').innerHTML = virtualPlayers.map((vp, index) => `
+                <div>
+                    <strong>${vp.name} (${vp.wealth})</strong>: 
+                    ${vp.hand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join(' ')} - 
+                    <span class="font-semibold">${vp.status}</span>
+                </div>
             `).join('');
-            document.getElementById('hit-button').disabled = gameEnded;
-            document.getElementById('stand-button').disabled = gameEnded;
-        }
-
-        function hit() {
-            if (gameEnded || timeLeft <= 0) return;
-            playerHand.push(drawCard());
-            resetTimer();
-            if (calculateHandValue(playerHand) > 21) {
-                endGame(false);
-            } else {
-                updateUI();
+            // Update Financial Stats
+            document.getElementById('financial-stats').innerHTML = `
+                <li>${playerName}: $${wealth}</li>
+                ${virtualPlayers.map((vp, index) => `<li>${vp.name}: $${vp.wealth} - Bet $${vp.bet} - ${vp.status}</li>`).join('')}
+            `;
+            // Update Current Turn Display
+            let turnText = "";
+            if (currentTurn === 0) {
+                turnText = `${playerName}'s Turn`;
+                enablePlayerActions();
+            } else if (currentTurn >=1 && currentTurn <= virtualPlayers.length) {
+                const vp = virtualPlayers[currentTurn - 1];
+                turnText = `${vp.name}'s Turn`;
+                disablePlayerActions();
+            } else if (currentTurn === virtualPlayers.length + 1) {
+                turnText = `Dealer's Turn`;
+                disablePlayerActions();
             }
+            document.getElementById('current-turn').textContent = turnText;
         }
 
-        function stand() {
-            if (gameEnded || timeLeft <= 0) return;
-            dealerTurn();
+        // Update Financial Stats Display
+        function updateFinancialStats() {
+            updateWalletDisplays();
         }
 
-        function virtualPlayersTurn() {
-            virtualPlayers.forEach((hand, index) => {
-                while (calculateHandValue(hand) < 16) {
-                    hand.push(drawCard());
-                }
-            });
-            updateUI();
+        // Player Actions Controls
+        function enablePlayerActions() {
+            document.getElementById('hit-button').disabled = false;
+            document.getElementById('stand-button').disabled = false;
+            document.getElementById('fold-button').disabled = false;
+            // Add styling to indicate buttons are active
+            document.getElementById('hit-button').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('stand-button').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('fold-button').classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
-        function dealerTurn() {
-            while (calculateHandValue(dealerHand) < 17) {
-                dealerHand.push(drawCard());
-            }
-            evaluateGame();
-        }
-
-        function evaluateGame() {
-            const playerValue = calculateHandValue(playerHand);
-            const dealerValue = calculateHandValue(dealerHand);
-            const virtualWinners = virtualPlayers.filter(hand => calculateHandValue(hand) <= 21 && calculateHandValue(hand) > dealerValue);
-
-            if (dealerValue > 21 || playerValue > dealerValue || virtualWinners.length === 0) {
-                endGame(true);
-            } else {
-                endGame(false);
-            }
-        }
-
-        function endGame(playerWon) {
-            gameEnded = true;
-            clearInterval(timerInterval);
+        function disablePlayerActions() {
             document.getElementById('hit-button').disabled = true;
             document.getElementById('stand-button').disabled = true;
-            if (playerWon) {
-                wealth += currentBet;
-                document.getElementById('game-status').textContent = `You won! You gained $${currentBet}.`;
-            } else {
-                wealth -= currentBet;
-                document.getElementById('game-status').textContent = `You lost! You lost $${currentBet}.`;
-            }
+            document.getElementById('fold-button').disabled = true;
+            // Add styling to indicate buttons are disabled
+            document.getElementById('hit-button').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('stand-button').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('fold-button').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Player Chooses to Hit
+        function hit() {
+            if (gameEnded || folded || currentTurn !== 0) return;
+            playerHand.push(drawCard());
             updateUI();
-            if (wealth <= 0) {
-                displayDashboard();
-            } else {
-                setTimeout(startNewRound, 2000);
+            const playerValue = calculateHandValue(playerHand);
+            if (playerValue > 21) {
+                endRound(false, "You busted!");
+            } else if (playerValue === 21) {
+                stand(); // Automatically stand if player hits 21
             }
         }
 
+        // Player Chooses to Stand
+        function stand() {
+            if (gameEnded || folded || currentTurn !== 0) return;
+            currentTurn++;
+            updateUI();
+            playTurn();
+        }
+
+        // Player Chooses to Fold
+        function fold() {
+            if (gameEnded || folded || currentTurn !== 0) return;
+            folded = true;
+            gameEnded = true;
+            document.getElementById('game-status').textContent = "You folded! You lose your bet.";
+            setTimeout(endRound, 3000);
+        }
+
+        // Play Turns Sequentially
+        function playTurn() {
+            if (gameEnded) return;
+            if (currentTurn >=1 && currentTurn <= virtualPlayers.length) {
+                const vp = virtualPlayers[currentTurn - 1];
+                if (vp.status === "In" && vp.wealth >= vp.bet) {
+                    // Advanced AI Strategy
+                    setTimeout(() => {
+                        decideAIMove(vp);
+                    }, 1000);
+                } else {
+                    // If virtual player cannot bet or has already folded/busted
+                    currentTurn++;
+                    updateUI();
+                    playTurn();
+                }
+            } else if (currentTurn === virtualPlayers.length + 1) {
+                // Dealer's Turn
+                dealerTurn();
+            }
+        }
+
+        // Advanced AI Move Decision
+        function decideAIMove(vp) {
+            const vpValue = calculateHandValue(vp.hand);
+            const dealerVisibleCard = dealerHand[0].value;
+            let decision = "Stand";
+
+            // Basic Strategy: Simplified for demonstration
+            if (vpValue < 12) {
+                decision = "Hit";
+            } else if (vpValue >= 12 && vpValue <= 16) {
+                if (dealerVisibleCard >= 7) {
+                    decision = "Hit";
+                } else {
+                    decision = "Stand";
+                }
+            } else {
+                decision = "Stand";
+            }
+
+            // Additional Intelligence: Consider other players' actions
+            // For example, if many players are standing, AI might take more risks
+            const activeAIs = virtualPlayers.filter(player => player.status === "In");
+            const standingAIs = activeAIs.filter(player => calculateHandValue(player.hand) >= 17).length;
+            if (standingAIs > activeAIs.length / 2 && vpValue < 17) {
+                decision = "Hit";
+            }
+
+            if (decision === "Hit") {
+                vp.hand.push(drawCard());
+                const newValue = calculateHandValue(vp.hand);
+                if (newValue > 21) {
+                    vp.status = "Busted";
+                }
+            } else {
+                vp.status = "Standing";
+            }
+
+            updateUI();
+
+            // Proceed to next turn
+            currentTurn++;
+            updateUI();
+            playTurn();
+        }
+
+        // Dealer's Turn
+        function dealerTurn() {
+            updateUI();
+            disablePlayerActions();
+            // Reveal dealer's hand
+            document.getElementById('dealer-hand').innerHTML = dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
+            let dealerValue = calculateHandValue(dealerHand);
+            while (dealerValue < 17) {
+                dealerHand.push(drawCard());
+                dealerValue = calculateHandValue(dealerHand);
+                updateUI();
+            }
+            setTimeout(() => {
+                evaluateRound();
+            }, 1000);
+        }
+
+        // Evaluate Round Outcome
+        function evaluateRound() {
+            const playerValue = calculateHandValue(playerHand);
+            const dealerValue = calculateHandValue(dealerHand);
+
+            // Determine Player Outcome
+            let playerOutcome = "";
+            if (playerValue > 21) {
+                playerOutcome = "You busted!";
+            } else if (dealerValue > 21 || playerValue > dealerValue) {
+                playerOutcome = "You win!";
+                wealth += currentBet * 2;
+            } else if (playerValue === dealerValue) {
+                playerOutcome = "It's a push.";
+                wealth += currentBet;
+            } else {
+                playerOutcome = "You lose!";
+            }
+
+            // Determine Virtual Players Outcomes
+            virtualPlayers.forEach(vp => {
+                if (vp.status === "Busted") {
+                    vp.status = "Lost";
+                } else {
+                    const vpValue = calculateHandValue(vp.hand);
+                    if (vpValue > 21) {
+                        vp.status = "Busted";
+                    } else if (dealerValue > 21 || vpValue > dealerValue) {
+                        vp.status = "Won";
+                        vp.wealth += vp.bet * 2;
+                    } else if (vpValue === dealerValue) {
+                        vp.status = "Push";
+                        vp.wealth += vp.bet;
+                    } else {
+                        vp.status = "Lost";
+                    }
+                }
+            });
+
+            updateUI();
+            document.getElementById('game-status').textContent = playerOutcome;
+            endRound();
+        }
+
+        // End Round and Proceed
+        function endRound() {
+            gameEnded = true;
+            clearInterval(timerInterval);
+            disablePlayerActions();
+            // Reset bets for next round
+            virtualPlayers.forEach(vp => {
+                vp.bet = 0;
+                vp.status = "In";
+            });
+            currentBet = 5000; // Reset to default
+            updateBetDisplay();
+            setTimeout(() => {
+                if (wealth <= 0 || virtualPlayers.every(vp => vp.wealth < 1000)) {
+                    displayDashboard();
+                } else {
+                    // Proceed to Betting Phase for next round
+                    document.getElementById('game-area').classList.add('hidden');
+                    document.getElementById('betting-phase').classList.remove('hidden');
+                    enableBettingControls();
+                }
+            }, 3000);
+        }
+
+        // Display Final Dashboard
         function displayDashboard() {
             document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('betting-phase').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('player-name-dashboard').textContent = playerName;
             document.getElementById('final-wealth').textContent = wealth;
         }
 
+        // Restart Game
         function restartGame() {
             wealth = 100000;
             currentBet = 5000;
             playerHand = [];
             dealerHand = [];
             gameEnded = false;
-            timeLeft = 30;
+            timeLeft = 45;
             roundCounter = 0;
+            currentTurn = 0;
+            bettingPool = 0;
+            folded = false;
+            virtualPlayers.forEach(vp => {
+                vp.wealth = 100000;
+                vp.hand = [];
+                vp.status = "In";
+                vp.bet = 0;
+            });
             document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('landing-form').classList.remove('hidden');
+            document.getElementById('betting-phase').classList.remove('hidden');
+            updateWalletDisplays();
+            updateFinancialStats();
+            enableBettingControls();
+            document.getElementById('current-bet').textContent = currentBet;
         }
 
-        function raiseBet() {
-            if (currentBet + 5000 <= wealth) {
-                currentBet += 5000;
-                updateUI();
-            } else {
-                alert("You don't have enough wealth to raise the bet.");
-            }
-        }
-
-        function lowerBet() {
-            if (currentBet - 3000 >= 1000) {
-                currentBet -= 3000;
-                updateUI();
-            } else {
-                alert("The minimum bet is $1,000.");
-            }
-        }
-
-        function allIn() {
-            currentBet = wealth;
-            updateUI();
-        }
-
+        // Timer Functions
         function startTimer() {
             timerInterval = setInterval(() => {
-                if (timeLeft <= 0) {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById('time-left').textContent = timeLeft;
+                } else {
                     clearInterval(timerInterval);
-                    endGame(false);
-                    return;
+                    if (!gameEnded) {
+                        endRound(false, "Time's up! You lose.");
+                    }
                 }
-                timeLeft--;
-                document.getElementById('time-left').textContent = timeLeft;
             }, 1000);
         }
 
         function resetTimer() {
             clearInterval(timerInterval);
-            timeLeft = 30;
+            timeLeft = 45;
             startTimer();
         }
+
+        // Initialize Game
+        function startGame() {
+            generateDeck();
+            startNewRound();
+            startTimer();
+        }
+
     </script>
 </body>
 </html>
