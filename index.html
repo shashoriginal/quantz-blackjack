@@ -20,7 +20,7 @@
             margin: 0;
             padding: 20px;
         }
-        #landing-form, #betting-phase, #game-area, #dashboard {
+        #landing-form, #pre-betting-phase, #betting-phase, #game-area, #dashboard {
             background: #1F2739;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
@@ -31,7 +31,7 @@
             transition: transform 0.3s, box-shadow 0.3s;
             margin-bottom: 20px;
         }
-        #landing-form:hover, #betting-phase:hover, #game-area:hover, #dashboard:hover {
+        #landing-form:hover, #pre-betting-phase:hover, #betting-phase:hover, #game-area:hover, #dashboard:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
         }
@@ -175,7 +175,29 @@
     <div id="landing-form" class="p-8">
         <h1 class="text-5xl font-bold mb-6">Monte Carlo Blackjack</h1>
         <input type="text" id="player-name" placeholder="Enter your name" class="px-4 py-2 rounded-md mb-4">
-        <button class="button" onclick="startBettingPhase()">Start Game</button>
+        <button class="button" onclick="startPreBettingPhase()">Start Game</button>
+    </div>
+
+    <!-- Pre-Betting Phase -->
+    <div id="pre-betting-phase" class="hidden p-8">
+        <h1 class="text-4xl font-bold mb-6">Initial Deal</h1>
+        <div class="dashboard">
+            <!-- Player Initial Card -->
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Your Initial Card</h3>
+                <div id="player-initial-card" class="flex justify-center">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+            <!-- Dealer Initial Card -->
+            <div class="dashboard-section">
+                <h3 class="text-lg font-bold mb-2">Dealer's Initial Card</h3>
+                <div id="dealer-initial-card" class="flex justify-center">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+        <button class="button mt-4" onclick="startBettingPhase()">Proceed to Betting</button>
     </div>
 
     <!-- Betting Phase -->
@@ -323,19 +345,21 @@
             return parseInt(card);
         }
 
-        // Start Betting Phase
-        function startBettingPhase() {
+        // Start Pre-Betting Phase
+        function startPreBettingPhase() {
             playerName = document.getElementById('player-name').value.trim();
             if (!playerName) {
                 alert('Please enter your name to start the game.');
                 return;
             }
             document.getElementById('landing-form').classList.add('hidden');
-            document.getElementById('betting-phase').classList.remove('hidden');
+            document.getElementById('pre-betting-phase').classList.remove('hidden');
             document.getElementById('player-wallet-name').textContent = playerName;
             document.getElementById('player-wallet').textContent = wealth;
             populateVirtualWallets();
             updateFinancialStats();
+            generateDeck();
+            dealInitialCards();
         }
 
         // Populate Virtual Players' Wallets
@@ -351,6 +375,29 @@
                 `;
                 virtualWalletsDiv.appendChild(walletDiv);
             });
+        }
+
+        // Deal Initial Cards (Pre-Betting)
+        function dealInitialCards() {
+            // Player's Initial Card
+            const playerCard = drawCard();
+            playerHand.push(playerCard);
+            document.getElementById('player-initial-card').innerHTML = `
+                <span class="card">${playerCard.display}<span class="suit">${playerCard.suit}</span></span>
+            `;
+
+            // Dealer's Initial Card
+            const dealerCard = drawCard();
+            dealerHand.push(dealerCard);
+            document.getElementById('dealer-initial-card').innerHTML = `
+                <span class="card">${dealerCard.display}<span class="suit">${dealerCard.suit}</span></span>
+            `;
+        }
+
+        // Start Betting Phase
+        function startBettingPhase() {
+            document.getElementById('pre-betting-phase').classList.add('hidden');
+            document.getElementById('betting-phase').classList.remove('hidden');
         }
 
         // Update All Wallet Displays
@@ -420,10 +467,9 @@
             // Disable betting buttons
             disableBettingControls();
 
-            // Proceed to deal cards
+            // Proceed to deal second cards and start the round
             document.getElementById('betting-phase').classList.add('hidden');
             document.getElementById('game-area').classList.remove('hidden');
-            generateDeck();
             startNewRound();
         }
 
@@ -501,9 +547,21 @@
                 return;
             }
             roundCounter++;
-            // Reset Hands and Status
-            playerHand = [drawCard(), drawCard()];
-            dealerHand = [drawCard(), drawCard()];
+            // Deal second cards to player and dealer
+            playerHand.push(drawCard());
+            dealerHand.push(drawCard());
+
+            // Update Hands Display
+            document.getElementById('player-hand').innerHTML = playerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
+            document.getElementById('dealer-hand').innerHTML = dealerHand.map((card, index) => {
+                if (index === 1 && !gameEnded) {
+                    return `<span class="card">?</span>`;
+                } else {
+                    return `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`;
+                }
+            }).join('');
+
+            // Reset Virtual Players' Hands and Status
             virtualPlayers.forEach(vp => {
                 if (vp.wealth >= vp.bet && vp.bet > 0) {
                     vp.hand = [drawCard(), drawCard()];
@@ -512,6 +570,7 @@
                     vp.status = "Busted";
                 }
             });
+
             folded = false;
             bettingPool = currentBet + virtualPlayers.reduce((sum, vp) => sum + vp.bet, 0);
             gameEnded = false;
@@ -574,7 +633,10 @@
             if (gameEnded) {
                 document.getElementById('dealer-hand').innerHTML = dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
             } else {
-                document.getElementById('dealer-hand').innerHTML = `<span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> <span class="card">?</span>`;
+                document.getElementById('dealer-hand').innerHTML = `
+                    <span class="card">${dealerHand[0].display}<span class="suit">${dealerHand[0].suit}</span></span> 
+                    <span class="card">?</span>
+                `;
             }
             // Update Virtual Players' Hands
             document.getElementById('virtual-players-hands').innerHTML = virtualPlayers.map((vp, index) => `
@@ -732,7 +794,7 @@
         function dealerTurn() {
             updateUI();
             disablePlayerActions();
-            // Reveal dealer's hand
+            // Reveal dealer's hidden card
             document.getElementById('dealer-hand').innerHTML = dealerHand.map(card => `<span class="card">${card.display}<span class="suit">${card.suit}</span></span>`).join('');
             let dealerValue = calculateHandValue(dealerHand);
             while (dealerValue < 17) {
